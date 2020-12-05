@@ -25,11 +25,20 @@ if __name__ == '__main__':
     data = get_data(day=5)
     data_lines = data.splitlines()
 
-    seat_id = 0
+    seat_ids = []
     for data_line in data_lines:
         row = findPosition(dataQueue(data_line, 0, 7), 'B', 0, 127)
         column = findPosition(dataQueue(data_line, 7), 'R', 0, 7)
-        new_seat_id = row * 8 + column
-        if new_seat_id > seat_id:
-            seat_id = new_seat_id
-    print(f'Part 1: SeatId {seat_id}')
+        seat_ids.append(row * 8 + column)
+    print(f'Part 1: SeatId {max(seat_ids)}')
+
+    seat_ids.sort()
+    seat_ids.reverse()
+    previous_seat_id = seat_ids[0]
+    my_seat_id = previous_seat_id
+    for current_seat_id in seat_ids:
+        if previous_seat_id - current_seat_id > 1:
+            my_seat_id = current_seat_id + 1
+            break
+        previous_seat_id = current_seat_id
+    print(f'Part 2: My SeatId {my_seat_id}')
