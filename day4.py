@@ -100,17 +100,6 @@ class Passport:
 
 
 if __name__ == '__main__':
-
-    test = Passport()
-    test.raw_data_lines = [
-        'eyr:1972 cid:100',
-        'hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926'
-    ]
-
-    result = test.isValidPart2()
-
-
-
     data = get_data(day=4)
     data_lines = data.splitlines()
     passports = []
