@@ -23,33 +23,75 @@ if __name__ == '__main__':
 
     acc = 0
     current_index = 0
+
+    jmps = []
+    nops = []
+
     current_instruction = program[current_index]
-    while current_instruction["count"] == 0:
+    while current_instruction["count"] == 0 or current_index > len(program):
         current_instruction["count"] += 1
         instr = current_instruction["instruction"]
         if instr in ["nop", "acc"]:
             if instr == "acc":
                 acc += current_instruction["value"]
+            else:
+                nops.append(current_index)
             current_index += 1
         if instr == "jmp":
+            jmps.append(current_index)
             current_index += (current_instruction["value"])
         current_instruction = program[current_index]
 
     print(f'Part 1 acc value {acc}')
 
-    # end_node_bags = []
-    # graph = {}
-    # for data_line in data.splitlines():
-    #     bag_line = data_line.split('bags contain')
-    #     bag_name = bag_line[0].strip()
-    #     contents = bag_line[1].split(",")
-    #     inner_bags = []
-    #     for inner_bag in contents:
-    #         if not inner_bag.strip().startswith("no"):
-    #             bag_desc = re.sub("bag[s]?\.?", "", inner_bag)
-    #             cleaned_bag_desc = bag_desc.strip()
-    #             count, inner_bag_name = parse("{:d} {}", cleaned_bag_desc)
-    #             inner_bags.append({ "bag": inner_bag_name, "count": count})
-    #         else:
-    #             end_node_bags.append(bag_name)
-    #     graph[bag_name] = inner_bags
+    for nop in nops:
+        program.clear()
+        for data_line in data.splitlines():
+            instruction, value = parse("{} {:d}", data_line)
+            program.append({"instruction": instruction, "value": value, "count": 0})
+        program[nop]["instruction"] = "jmp"
+
+        acc = 0
+        current_index = 0
+        current_instruction = program[current_index]
+        if current_index > len(program):
+            print(f"Change {nop} {acc}")
+            break
+        while current_instruction["count"] == 0:
+            current_instruction["count"] += 1
+            instr = current_instruction["instruction"]
+            if instr in ["nop", "acc"]:
+                if instr == "acc":
+                    acc += current_instruction["value"]
+                current_index += 1
+            if instr == "jmp":
+                current_index += (current_instruction["value"])
+            try:
+                current_instruction = program[current_index]
+            except:
+                print(f"Change index changed nop to jmp {nop} {acc}")
+
+    for jmp in jmps:
+        program.clear()
+        for data_line in data.splitlines():
+            instruction, value = parse("{} {:d}", data_line)
+            program.append({"instruction": instruction, "value": value, "count": 0})
+        program[jmp]["instruction"] = "nop"
+
+        acc = 0
+        current_index = 0
+        current_instruction = program[current_index]
+        while current_instruction["count"] == 0:
+            current_instruction["count"] += 1
+            instr = current_instruction["instruction"]
+            if instr in ["nop", "acc"]:
+                if instr == "acc":
+                    acc += current_instruction["value"]
+                current_index += 1
+            if instr == "jmp":
+                current_index += (current_instruction["value"])
+            try:
+                current_instruction = program[current_index]
+            except:
+                print(f"Change index changed jmp to nop {jmp}")
+                print(f'Part 2 acc value {acc}')
