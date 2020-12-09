@@ -13,9 +13,21 @@ def generate_options(input_numbers):
         start += 1
     return options
 
-if __name__ == '__main__':
-    # data = get_data(day=9)
+def find_range(input_numbers, target):
+    start = 0
+    sum_list = []
+    while start < len(input_numbers):
+        sum_list = []
+        index = start
+        while sum(sum_list) < target:
+            sum_list.append(input_numbers[index])
+            index += 1
+        if sum(sum_list) == target:
+            break
+        start += 1
+    return sum_list
 
+if __name__ == '__main__':
     # data = [
     #     35,
     #     20,
@@ -40,8 +52,8 @@ if __name__ == '__main__':
     # ]
 
     data = [int(line_data) for line_data in get_data(day=9).splitlines()]
-
     preamble_length = 25
+    # preamble_length = 5
     current_index = 0
     while current_index < len(data):
         current_value = data[current_index + preamble_length]
@@ -51,3 +63,6 @@ if __name__ == '__main__':
             break
         current_index += 1
     print(f'Part 1 answer {current_value}')
+
+    found_range = find_range(data[0:current_index + preamble_length], current_value)
+    print(f'Part 2 answer {min(found_range) + max(found_range)}')
