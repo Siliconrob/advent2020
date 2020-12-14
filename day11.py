@@ -1,5 +1,10 @@
-from aocd import get_data
-import queue
+# from aocd import get_data
+
+def flatten_matrix(input_matrix):
+    flattened = ""
+    for row in input_matrix:
+        flattened = flattened + "".join(row)
+    return flattened
 
 def print_matrix(input_matrix):
     for row in input_matrix:
@@ -42,7 +47,7 @@ def seat_passengers(input_matrix):
         new_row = []
         for column in row:
             current_seat = input_matrix[x][y]
-            next_seat = "."
+            next_seat = current_seat
             if current_seat != ".":
                 next_seat = current_seat
                 current = get_neighbors(input_matrix, x, y)
@@ -55,7 +60,6 @@ def seat_passengers(input_matrix):
             y += 1
         x += 1
         output_matrix.append(new_row)
-    print_matrix(output_matrix)
     return output_matrix
 
 if __name__ == '__main__':
@@ -76,16 +80,18 @@ if __name__ == '__main__':
     ]
 
     matrix = read_matrix(data)
-
+    index = 0
+    previous_run = ""
     filled_seats = 0
-    previous_compare = ""
     while True:
-        results = seat_passengers(matrix)
-        new_compare = "".join([item for sublist in results for item in sublist])
-        if previous_compare == new_compare:
-            filled_seats = new_compare.count("#")
+        matrix = seat_passengers(matrix)
+        index += 1
+        current_run = flatten_matrix(matrix)
+        print(f'Round [{index}]: {current_run}')
+        if previous_run == current_run:
+            filled_seats = current_run.count("#")
+            # print_matrix(matrix)
             break
-        previous_compare = new_compare
-        print_matrix(results)
-        print('break')
+        else:
+            previous_run = current_run
     print(f'Part 1: filled seats {filled_seats}')
