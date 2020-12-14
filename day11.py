@@ -1,5 +1,4 @@
-# from aocd import get_data
-from collections import defaultdict
+from aocd import get_data
 
 class Neighbor:
     def __init__(self, search_x, search_y, x_increment, y_increment):
@@ -131,39 +130,38 @@ def seat_passengers(input_matrix):
     return output_matrix
 
 if __name__ == '__main__':
-    # data = get_data(day=10)
+    data = get_data(day=11).splitlines()
     # data_lines = data.splitlines()
 
-    data = [
-        "L.LL.LL.LL",
-        "LLLLLLL.LL",
-        "L.L.L..L..",
-        "LLLL.LL.LL",
-        "L.LL.LL.LL",
-        "L.LLLLL.LL",
-        "..L.L.....",
-        "LLLLLLLLLL",
-        "L.LLLLLL.L",
-        "L.LLLLL.LL"
-    ]
+    # data = [
+    #     "L.LL.LL.LL",
+    #     "LLLLLLL.LL",
+    #     "L.L.L..L..",
+    #     "LLLL.LL.LL",
+    #     "L.LL.LL.LL",
+    #     "L.LLLLL.LL",
+    #     "..L.L.....",
+    #     "LLLLLLLLLL",
+    #     "L.LLLLLL.L",
+    #     "L.LLLLL.LL"
+    # ]
 
     matrix = read_matrix(data)
 
     index = 0
     previous_run = ""
     filled_seats = 0
-    # while True:
-    #     matrix = seat_passengers(matrix)
-    #     index += 1
-    #     current_run = flatten_matrix(matrix)
-    #     print(f'Round [{index}]: {current_run}')
-    #     if previous_run == current_run:
-    #         filled_seats = current_run.count("#")
-    #         # print_matrix(matrix)
-    #         break
-    #     else:
-    #         previous_run = current_run
-    # print(f'Part 1: filled seats {filled_seats}')
+    while True:
+        matrix = seat_passengers(matrix)
+        index += 1
+        current_run = flatten_matrix(matrix)
+        print(f'Round [{index}]: {current_run}')
+        if previous_run == current_run:
+            filled_seats = current_run.count("#")
+            break
+        else:
+            previous_run = current_run
+    print(f'Part 1: filled seats {filled_seats}')
 
     while True:
         matrix = seat_passengers_by_visibility(matrix)
