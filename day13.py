@@ -1,4 +1,4 @@
-# from aocd import get_data
+from aocd import get_data
 from parse import parse
 
 def parse_input(data_lines):
@@ -11,11 +11,11 @@ def parse_input(data_lines):
     return start_time, times
 
 if __name__ == '__main__':
-    # data = get_data(day=13).splitlines()
-    data = [
-        "939",
-        "7, 13, x, x, 59, x, 31, 19"
-    ]
+    data = get_data(day=13).splitlines()
+    # data = [
+    #     "939",
+    #     "7, 13, x, x, 59, x, 31, 19"
+    # ]
     start_time, times = parse_input(data)
     bus_starts = {}
     for bus_time in times:
