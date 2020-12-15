@@ -1,4 +1,4 @@
-# from aocd import get_data
+from aocd import get_data
 from parse import parse
 
 def rotate_waypoint(input_direction, x_unit, y_unit):
@@ -16,15 +16,15 @@ def rotate_waypoint(input_direction, x_unit, y_unit):
     return x_unit, y_unit
 
 if __name__ == '__main__':
-    # data = get_data(day=12).splitlines()
+    data = get_data(day=12).splitlines()
 
-    data = [
-        "F10",
-        "N3",
-        "F7",
-        "R90",
-        "F11"
-    ]
+    # data = [
+    #     "F10",
+    #     "N3",
+    #     "F7",
+    #     "R90",
+    #     "F11"
+    # ]
 
     # Initial starting point
     current_direction = 90 # face east
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     for data_line in data:
         action, move = parse("{}{:d}", data_line)
-        print(f'{action} {move}')
+        # print(f'{action} {move}')
         if action == "F":
             x += x_unit * move
             y += y_unit * move
