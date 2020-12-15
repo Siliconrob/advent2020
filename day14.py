@@ -1,4 +1,4 @@
-# from aocd import get_data
+from aocd import get_data
 from parse import *
 
 def apply_mask(mask, bin_value):
@@ -13,13 +13,13 @@ def apply_mask(mask, bin_value):
     return int(masked, 2)
 
 if __name__ == '__main__':
-    # data = get_data(day=13).splitlines()
-    data = [
-        "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
-        "mem[58] = 11",
-        "mem[7] = 101",
-        "mem[58] = 0"
-    ]
+    data = get_data(day=14).splitlines()
+    # data = [
+    #     "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
+    #     "mem[58] = 11",
+    #     "mem[7] = 101",
+    #     "mem[58] = 0"
+    # ]
 
     mem_values = {}
     for data_line in data:
