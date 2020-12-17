@@ -1,6 +1,5 @@
 # from aocd import get_data
 import sqlite3
-from datetime import datetime
 from parse import parse
 
 class InputRule:
@@ -10,73 +9,79 @@ class InputRule:
         self.max = max
 
 class Ticket:
-    def __init__(self, name, ids):
-        self.name = name
-        self.ids
+    def __init__(self, ticket_type = "nearby", ids = []):
+        self.ticket_type = ticket_type
+        self.ids = ids
+
+def parse_rules(input_rules):
+    rules = []
+    for input_rule in input_rules:
+        name, min_rule1, max_rule1, min_rule2, max_rule2 = parse("{}: {:d}-{:d} or {:d}-{:d}", input_rule)
+        rules.append(InputRule(name, min_rule1, max_rule1))
+        rules.append(InputRule(name, min_rule2, max_rule2))
+    return rules
+
+def parse_my_ticket(my_ticket_input):
+    ids = [int(number) for number in my_ticket_input[-1].split(',')]
+    return Ticket("your ticket", ids)
+
+def parse_nearby_tickets(nearby_ticket_inputs):
+    nearby_tickets = []
+    for ticket_data in nearby_ticket_inputs:
+        if ticket_data.startswith("nearby tickets:"):
+            continue
+        ids = [int(number) for number in ticket_data.split(',')]
+        nearby_tickets.append(Ticket("nearby ticket", ids))
+    return nearby_tickets
+
 
 if __name__ == '__main__':
     data = [
-        "class: 1 - 3 or 5 - 7",
-        "row: 6 - 11 or 33 - 44",
-        "seat: 13 - 40 or 45 - 50",
-        "",
-        "your ticket:",
-        "7, 1, 14",
-        "",
-        "nearby tickets:",
-        "7, 3, 47",
-        "40, 4, 50",
-        "55, 2, 20",
-        "38, 6, 12"
+        [
+            "class: 1-3 or 5-7",
+            "row: 6-11 or 33-44",
+            "seat: 13-40 or 45-50"
+        ],
+        [
+            "your ticket:",
+            "7, 1, 14"
+        ],
+        [
+            "nearby tickets:",
+            "7, 3, 47",
+            "40, 4, 50",
+            "55, 2, 20",
+            "38, 6, 12"
+        ]
     ]
 
     # data = get_data(day=16).split("\n\n")
 
+    input_rules = parse_rules(data[0])
+    conn = sqlite3.connect(":memory:")
+    # Create a single table
+    conn.execute('CREATE TABLE "ranges" ("name"	TEXT, "min"	INTEGER, "max"	INTEGER )')
+    conn.execute('CREATE INDEX "ix_range" ON "ranges" ("min", "max" )')
 
-    for data_line in data:
-        print(data_line)
+    cursor = conn.cursor()
+    for input_rule in input_rules:
+        cursor.execute('INSERT INTO "ranges" ("name", "min", "max") VALUES (:name, :min, :max)', { "name": input_rule.name, "min": input_rule.min, "max": input_rule.max })
 
+    my_ticket = parse_my_ticket(data[1])
+    nearby_tickets = parse_nearby_tickets(data[2])
 
-    # # Redo the approach to use in memory database tables because the above method is hours long
-    # # the below approach is like 5 minutes
-    # conn = sqlite3.connect(":memory:")
-    # # Create a single table
-    # conn.execute('CREATE TABLE "zippers" ("round"	INTEGER, "value"	INTEGER, PRIMARY KEY("round") )')
-    # conn.execute('CREATE INDEX "ix_val" ON "zippers" ("value")') # this is very necessary
-    #
-    # # Load the data into the table
-    # rounds = 30000000
-    # current_index = 0
-    # for start_number in start_numbers:
-    #     conn.execute(f'INSERT INTO zippers (round, value) VALUES ({current_index}, {start_number})')
-    #     current_index += 1
-    #
-    # cursor = conn.cursor()
-    # set = 0
-    # for round in range(current_index, rounds):
-    #     cursor.execute("""select max(a.round) - min(a.round) new_number
-    #                         from
-    #                         (
-    #                             select round
-    #                             from zippers
-    #                             where value
-    #                             IN
-    #                             (
-    #                                 select value
-    #                                 from zippers
-    #                                 order by round desc
-    #                                 limit 1
-    #                             )
-    #                             order by round desc
-    #                             limit 2
-    #                         ) a""")
-    #     result = cursor.fetchone()[0]
-    #     conn.execute(f'INSERT INTO zippers (round, value) VALUES ({round}, {result})')
-    #     if round % 10000 == 0:
-    #         print(f'Records done {set * 10000} at {datetime.now().strftime("%H:%M:%S")}')
-    #         set += 1
-    # cursor.execute("""select VALUE from zippers order by round DESC limit 1""")
-    # answer = cursor.fetchone()[0]
-    # print(f'Part 2: {answer}')
+    invalid_scanned_ticket_ids = []
+    for nearby_ticket in nearby_tickets:
+        for id in nearby_ticket.ids:
+            cursor.execute("""select name, count(*) matched
+                                from ranges
+                                where :id between min and max
+                                group by name""", { "id": id})
+            result = cursor.fetchone()
+            if result is None:
+                invalid_scanned_ticket_ids.append(id)
+                break
+    scan_error_rate = sum(invalid_scanned_ticket_ids)
+    print(f'Part 1: {scan_error_rate}')
 
 
