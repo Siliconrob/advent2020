@@ -1,4 +1,5 @@
 # from aocd import get_data
+from functools import reduce
 import sqlite3
 from parse import parse
 
@@ -15,19 +16,19 @@ class Ticket:
 
 def parse_rules(input_rules):
     rules = []
-    for input_rule in input_rules:
+    for input_rule in input_rules.split("\n"):
         name, min_rule1, max_rule1, min_rule2, max_rule2 = parse("{}: {:d}-{:d} or {:d}-{:d}", input_rule)
         rules.append(InputRule(name, min_rule1, max_rule1))
         rules.append(InputRule(name, min_rule2, max_rule2))
     return rules
 
 def parse_my_ticket(my_ticket_input):
-    ids = [int(number) for number in my_ticket_input[-1].split(',')]
+    ids = [int(number) for number in my_ticket_input.split("\n")[-1].split(',')]
     return Ticket("your ticket", ids)
 
 def parse_nearby_tickets(nearby_ticket_inputs):
     nearby_tickets = []
-    for ticket_data in nearby_ticket_inputs:
+    for ticket_data in nearby_ticket_inputs.split("\n"):
         if ticket_data.startswith("nearby tickets:"):
             continue
         ids = [int(number) for number in ticket_data.split(',')]
@@ -37,22 +38,9 @@ def parse_nearby_tickets(nearby_ticket_inputs):
 
 if __name__ == '__main__':
     data = [
-        [
-            "class: 1-3 or 5-7",
-            "row: 6-11 or 33-44",
-            "seat: 13-40 or 45-50"
-        ],
-        [
-            "your ticket:",
-            "7, 1, 14"
-        ],
-        [
-            "nearby tickets:",
-            "7, 3, 47",
-            "40, 4, 50",
-            "55, 2, 20",
-            "38, 6, 12"
-        ]
+            "class: 0-1 or 4-19\nrow: 0-5 or 8-19\nclass2: 0-13 or 16-19",
+            "your ticket:\n11,12,13",
+            "nearby tickets:\n3, 9, 18\n15, 1, 5\n5, 14, 9\n22, 4, 5"
     ]
 
     # data = get_data(day=16).split("\n\n")
@@ -71,7 +59,10 @@ if __name__ == '__main__':
     nearby_tickets = parse_nearby_tickets(data[2])
 
     invalid_scanned_ticket_ids = []
+    valid_tickets = []
+
     for nearby_ticket in nearby_tickets:
+        valid_tickets.append(nearby_ticket)
         for id in nearby_ticket.ids:
             cursor.execute("""select name, count(*) matched
                                 from ranges
@@ -80,8 +71,44 @@ if __name__ == '__main__':
             result = cursor.fetchone()
             if result is None:
                 invalid_scanned_ticket_ids.append(id)
+                valid_tickets.remove(nearby_ticket)
                 break
     scan_error_rate = sum(invalid_scanned_ticket_ids)
     print(f'Part 1: {scan_error_rate}')
 
+    row_data_per_column = []
+    for field_index in range(len(valid_tickets[0].ids)):
+        row_ids = []
+        for valid_ticket in valid_tickets:
+            row_ids.append(valid_ticket.ids[field_index])
+        row_data_per_column.append(row_ids)
 
+    column_lookup = {}
+    column_index = 0
+    for row_values in row_data_per_column:
+        cursor.execute("""select DISTINCT name from ranges""")
+        for field_name in cursor.fetchall():
+            search_field = field_name[0]
+            if search_field in column_lookup:
+                continue
+            print(f'Field to search for {search_field}')
+            match_count = 0
+            for row_id in row_values:
+                cursor.execute("""select name from ranges where name = :name and :id between min and max""", {"name": search_field, "id": row_id})
+                result = cursor.fetchone()
+                if result is not None:
+                    match_count += 1
+            if match_count == len(row_values):
+                column_lookup[search_field] = column_index
+                break
+        column_index += 1
+
+    departure_columns = {key: val for key, val in column_lookup.items() if key.startswith("class")}
+    print(departure_columns)
+
+    departure_tickets = []
+    for key, value in departure_columns.items():
+        departure_tickets.append(my_ticket.ids[value])
+
+    part2 = reduce((lambda x, y: x * y), departure_tickets)
+    print(f'Part 2 answer: {part2}')
