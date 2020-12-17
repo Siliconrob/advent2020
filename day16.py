@@ -1,5 +1,5 @@
-# from aocd import get_data
 from functools import reduce
+#from aocd import get_data
 import sqlite3
 from parse import parse
 
