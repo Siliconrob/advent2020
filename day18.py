@@ -1,4 +1,4 @@
-# from aocd import get_data
+from aocd import get_data
 import re
 import queue
 
@@ -28,15 +28,15 @@ def to_queue(expression):
     return current
 
 if __name__ == '__main__':
-    data = [
-        "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2",
-        "5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))",
-        "5 + (8 * 3 + 9 + 3 * 4 * 3)",
-        "2 * 3 + (4 * 5)",
-        "1 + 2 * 3 + 4 * 5 + 6",
-        "1 + (2 * 3) + (4 * (5 + 6))"
-    ]
-    # data = get_data(day=18).splitlines()
+    # data = [
+    #     "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2",
+    #     "5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))",
+    #     "5 + (8 * 3 + 9 + 3 * 4 * 3)",
+    #     "2 * 3 + (4 * 5)",
+    #     "1 + 2 * 3 + 4 * 5 + 6",
+    #     "1 + (2 * 3) + (4 * (5 + 6))"
+    # ]
+    data = get_data(day=18).splitlines()
 
     expression_values = []
 
